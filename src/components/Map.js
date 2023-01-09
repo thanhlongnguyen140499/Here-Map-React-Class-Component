@@ -20,13 +20,15 @@ export default class Map extends React.Component {
       const layers = platform.createDefaultLayers();
       const map = new H.Map(this.ref.current, layers.vector.normal.map, {
         pixelRatio: window.devicePixelRatio,
-        center: { lat: 16, lng: 108 },
+        center: { lat: 52.5, lng: 13.4 },
         zoom: 4,
       });
       onResize(this.ref.current, () => {
         map.getViewPort().resize();
       });
       this.map = map;
+
+      this.changeFeatureStyle(this.map);
 
       // attach the listener
       map.addEventListener("mapviewchange", this.handleMapViewChange);
@@ -51,9 +53,11 @@ export default class Map extends React.Component {
 
   componentWillUnmount() {
     if (this.map) {
-      this.map.removeEventListener('mapviewchange', this.handleMapViewChange);
+      this.map.removeEventListener("mapviewchange", this.handleMapViewChange);
     }
   }
+
+  // FUNCTION
 
   handleMapViewChange = (ev) => {
     const { onMapViewChange } = this.props;
@@ -66,6 +70,36 @@ export default class Map extends React.Component {
       onMapViewChange(zoom, lat, lng);
     }
   };
+
+  changeFeatureStyle(map) {
+    // get the vector provider from the base layer
+    var provider = map.getBaseLayer().getProvider();
+
+    // get the style object for the base layer
+    var parkStyle = provider.getStyle();
+
+    var changeListener = (evt) => {
+      if (parkStyle.getState() === H.map.Style.State.READY) {
+        parkStyle.removeEventListener("change", changeListener);
+
+        // query the sub-section of the style configuration
+        // the call removes the subsection from the original configuration
+        var parkConfig = parkStyle.extractConfig([
+          "landuse.park",
+          "landuse.builtup",
+        ]);
+        // change the color, for the description of the style section
+        // see the Developer's guide
+        parkConfig.layers.landuse.park.draw.polygons.color = "#FF0000";
+        parkConfig.layers.landuse.builtup.draw.polygons.color = "#676d67";
+
+        // merge the configuration back to the base layer configuration
+        parkStyle.mergeConfig(parkConfig);
+      }
+    };
+
+    parkStyle.addEventListener("change", changeListener);
+  }
 
   render() {
     return (
