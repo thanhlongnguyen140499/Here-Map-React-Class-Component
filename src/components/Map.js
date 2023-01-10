@@ -13,6 +13,18 @@ export default class Map extends React.Component {
 
   componentDidMount() {
     const circle = new H.map.Circle({ lat: 16, lng: 108 }, 80000);
+    const customStyle = {
+      strokeColor: "black",
+      fillColor: "rgba(255, 255, 255, 0.5)",
+      lineWidth: 4,
+      lineCap: "square",
+      lineJoin: "bevel",
+    };
+
+    // Create a rectangle and pass the custom style as an options parameter:
+    var rect = new H.map.Rect(new H.geo.Rect(15.5, 100.5, 17, 108), {
+      style: customStyle,
+    });
 
     if (!this.map) {
       // instantiate a platform, default layers and a map as usual
@@ -32,6 +44,7 @@ export default class Map extends React.Component {
 
       // Add the circle to the map:
       map.addObject(circle);
+      map.addObject(rect);
 
       // attach the listener
       map.addEventListener("mapviewchange", this.handleMapViewChange);
