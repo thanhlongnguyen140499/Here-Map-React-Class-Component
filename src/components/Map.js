@@ -12,6 +12,16 @@ export default class Map extends React.Component {
   }
 
   componentDidMount() {
+    const overlay = new H.map.Overlay(
+      new H.geo.Rect(
+        70.72849153520343,
+        -24.085683364175395,
+        16.569664922291,
+        108.216452317817016
+      ),
+      "https://heremaps.github.io/maps-api-for-javascript-examples/image-overlay/data/0.png"
+    );
+
     if (!this.map) {
       // instantiate a platform, default layers and a map as usual
       const platform = new H.service.Platform({
@@ -27,6 +37,9 @@ export default class Map extends React.Component {
         map.getViewPort().resize();
       });
       this.map = map;
+
+      // add overlay to the map
+      map.addObject(overlay);
 
       // attach the listener
       map.addEventListener("mapviewchange", this.handleMapViewChange);
@@ -51,7 +64,7 @@ export default class Map extends React.Component {
 
   componentWillUnmount() {
     if (this.map) {
-      this.map.removeEventListener('mapviewchange', this.handleMapViewChange);
+      this.map.removeEventListener("mapviewchange", this.handleMapViewChange);
     }
   }
 
