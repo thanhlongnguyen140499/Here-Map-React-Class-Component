@@ -12,6 +12,8 @@ export default class Map extends React.Component {
   }
 
   componentDidMount() {
+    const circle = new H.map.Circle({ lat: 16, lng: 108 }, 80000);
+
     if (!this.map) {
       // instantiate a platform, default layers and a map as usual
       const platform = new H.service.Platform({
@@ -27,6 +29,9 @@ export default class Map extends React.Component {
         map.getViewPort().resize();
       });
       this.map = map;
+
+      // Add the circle to the map:
+      map.addObject(circle);
 
       // attach the listener
       map.addEventListener("mapviewchange", this.handleMapViewChange);
@@ -51,7 +56,7 @@ export default class Map extends React.Component {
 
   componentWillUnmount() {
     if (this.map) {
-      this.map.removeEventListener('mapviewchange', this.handleMapViewChange);
+      this.map.removeEventListener("mapviewchange", this.handleMapViewChange);
     }
   }
 
