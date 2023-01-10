@@ -12,6 +12,14 @@ export default class Map extends React.Component {
   }
 
   componentDidMount() {
+    // Create an info bubble object at a specific geographic location:
+    var bubble = new H.ui.InfoBubble(
+      { lat: 16, lng: 108 },
+      {
+        content: "<b>Hello Danang!</b>",
+      }
+    );
+
     if (!this.map) {
       // instantiate a platform, default layers and a map as usual
       const platform = new H.service.Platform({
@@ -19,14 +27,29 @@ export default class Map extends React.Component {
       });
       const layers = platform.createDefaultLayers();
       const map = new H.Map(this.ref.current, layers.vector.normal.map, {
-        pixelRatio: window.devicePixelRatio,
+        // pixelRatio: window.devicePixelRatio,
         center: { lat: 16, lng: 108 },
         zoom: 4,
       });
+
+      // Create the default UI:
+      let ui = H.ui.UI.createDefault(map, layers, 'en-US');
+      ui.getControl('zoom').setDisabled(false);
+
+      // managing the position of UI controls
+      let mapSettings = ui.getControl('mapsettings');
+      let zoom = ui.getControl('zoom');
+      let scalebar = ui.getControl('scalebar');
+
+      mapSettings.setAlignment('top-left');
+      zoom.setAlignment('top-left');
+      scalebar.setAlignment('top-left');
+
       onResize(this.ref.current, () => {
         map.getViewPort().resize();
       });
       this.map = map;
+      ui.addBubble(bubble);
 
       // attach the listener
       map.addEventListener("mapviewchange", this.handleMapViewChange);
@@ -51,7 +74,7 @@ export default class Map extends React.Component {
 
   componentWillUnmount() {
     if (this.map) {
-      this.map.removeEventListener('mapviewchange', this.handleMapViewChange);
+      this.map.removeEventListener("mapviewchange", this.handleMapViewChange);
     }
   }
 
