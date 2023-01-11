@@ -32,6 +32,24 @@ export default class Map extends React.Component {
       map.addEventListener("mapviewchange", this.handleMapViewChange);
       // add the interactive behaviour to the map
       new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+
+      // Create the parameters for the routing request:
+      let routingParameters = {
+        routingMode: "fast",
+        transportMode: "car",
+        // The start point of the route:
+        origin: "16.8581352,106.8588935",
+        // The end point of the route:
+        destination: "16.047079,108.206230",
+        // Include the route shape in the response
+        return: "polyline",
+      };
+
+      let router = platform.getRoutingService(null, 8);
+
+      router.calculateRoute(routingParameters, this.onResult, (error) => {
+        alert(error.message);
+      })
     }
   }
 
@@ -51,7 +69,7 @@ export default class Map extends React.Component {
 
   componentWillUnmount() {
     if (this.map) {
-      this.map.removeEventListener('mapviewchange', this.handleMapViewChange);
+      this.map.removeEventListener("mapviewchange", this.handleMapViewChange);
     }
   }
 
@@ -64,6 +82,38 @@ export default class Map extends React.Component {
       const lng = Math.trunc(lookAt.position.lng * 1e7) / 1e7;
       const zoom = Math.trunc(lookAt.zoom * 1e2) / 1e2;
       onMapViewChange(zoom, lat, lng);
+    }
+  };
+
+  // Define a callback function to process the routing response:
+  onResult = (result) => {
+    // ensure that at least one route was found
+    if (result.routes.length) {
+      result.routes[0].sections.forEach((section) => {
+        // Create a linestring to use as a point source for the route line
+        let linestring = H.geo.LineString.fromFlexiblePolyline(
+          section.polyline
+        );
+
+        // Create a polyline to display the route:
+        let routeLine = new H.map.Polyline(linestring, {
+          style: { strokeColor: "blue", lineWidth: 3 },
+        });
+
+        // Create a marker for the start point:
+        let startMarker = new H.map.Marker(section.departure.place.location);
+
+        // Create a marker for the end point:
+        let endMarker = new H.map.Marker(section.arrival.place.location);
+
+        // Add the route polyline and the two markers to the map:
+        this.map.addObjects([routeLine, startMarker, endMarker]);
+
+        // Set the map's viewport to make the whole route visible:
+        this.map
+          .getViewModel()
+          .setLookAtData({ bounds: routeLine.getBoundingBox() });
+      });
     }
   };
 
