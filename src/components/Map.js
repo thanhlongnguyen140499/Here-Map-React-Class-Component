@@ -9,6 +9,9 @@ export default class Map extends React.Component {
     this.ref = React.createRef();
     // reference to the map
     this.map = null;
+    this.state = {
+      service: {},
+    };
   }
 
   componentDidMount() {
@@ -21,6 +24,9 @@ export default class Map extends React.Component {
 
       // Get an instance of the geocoding service:
       let service = platform.getSearchService();
+      this.setState({
+        service: service,
+      });
 
       const map = new H.Map(this.ref.current, layers.vector.normal.map, {
         pixelRatio: window.devicePixelRatio,
@@ -34,6 +40,9 @@ export default class Map extends React.Component {
 
       // Create the default UI:
       let ui = H.ui.UI.createDefault(map, layers);
+      this.setState({
+        ui: ui,
+      });
 
       // attach the listener
       map.addEventListener("mapviewchange", this.handleMapViewChange);
@@ -77,7 +86,7 @@ export default class Map extends React.Component {
   }
 
   componentDidUpdate() {
-    const { lat, lng, zoom } = this.props;
+    const { lat, lng, zoom, searchStr } = this.props;
 
     if (this.map) {
       // prevent the unnecessary map updates by debouncing the
@@ -87,6 +96,30 @@ export default class Map extends React.Component {
         this.map.setZoom(zoom);
         this.map.setCenter({ lat, lng });
       }, 100);
+
+      // Autosuggest
+      this.state.service.autosuggest(
+        {
+          // Search query
+          q: this.props.searchStr,
+          // Center of the search context
+          at: "38.71014896078624,-98.60787954719035",
+        },
+        (result) => {
+          result.items.forEach((item) => {
+            let { position, title } = item;
+
+            // Assumption: ui is instantiated
+            // Create an InfoBubble at the returned location
+            this.state.ui.addBubble(
+              new H.ui.InfoBubble(position, {
+                content: title,
+              })
+            );
+          });
+        },
+        alert
+      );
     }
   }
 

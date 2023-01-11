@@ -7,8 +7,14 @@ export default class MapPosition extends Component {
     onChange(ev.target.name, ev.target.value);
   };
 
+  handleSearchInputOnChange = (ev) => {
+    const { onSearchInputChange } = this.props;
+    // pass the values to the parent component
+    onSearchInputChange(ev.target.name, ev.target.value);
+  }
+
   render() {
-    const { lat, lng, zoom } = this.props;
+    const { lat, lng, zoom, searchStr } = this.props;
     return (
       <>
         <div>
@@ -36,6 +42,16 @@ export default class MapPosition extends Component {
             name="lng"
             type="number"
             value={lng}
+          />
+        </div>
+
+        <div>
+          SEARCH:
+          <input
+            onChange={this.handleSearchInputOnChange}
+            name="searchStr"
+            type="text"
+            value={searchStr}
           />
         </div>
       </>

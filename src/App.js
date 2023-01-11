@@ -11,13 +11,20 @@ export default class App extends Component {
     this.state = {
       zoom: 0,
       lat: 0,
-      lng: 0
+      lng: 0,
+      searchStr: 'vietnam'
     }
   }
 
   handleInputChange = (name, value) => {
     this.setState({
       [name]: value
+    })
+  }
+
+  handleSearchInputChange = (str, value) => {
+    this.setState({
+      [str]: value
     })
   }
 
@@ -33,7 +40,8 @@ export default class App extends Component {
     const {
       zoom,
       lat,
-      lng
+      lng,
+      searchStr
     } = this.state;
     return (
       <div className="App">
@@ -42,12 +50,15 @@ export default class App extends Component {
           lng={lng}
           onMapViewChange={this.handleMapViewChange}
           zoom={zoom}
+          searchStr={searchStr}
         />
         <MapPosition
           lat={lat}
           lng={lng}
           onChange={this.handleInputChange}
+          onSearchInputChange={this.handleSearchInputChange}
           zoom={zoom}
+          searchStr={searchStr}
         />
       </div>
     );
