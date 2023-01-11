@@ -32,6 +32,9 @@ export default class Map extends React.Component {
       });
       this.map = map;
 
+      // Create the default UI:
+      let ui = H.ui.UI.createDefault(map, layers);
+
       // attach the listener
       map.addEventListener("mapviewchange", this.handleMapViewChange);
       // add the interactive behaviour to the map
@@ -46,6 +49,26 @@ export default class Map extends React.Component {
           // Add a marker for each location found
           result.items.forEach((item) => {
             map.addObject(new H.map.Marker(item.position));
+          });
+        },
+        alert
+      );
+
+      // Reverse geocoding map locations
+      service.reverseGeocode(
+        {
+          at: "16.3,108",
+        },
+        (result) => {
+          result.items.forEach((item) => {
+            // Assumption: ui is instantiated
+            // Create an InfoBubble at the returned location with
+            // the address as its contents:
+            ui.addBubble(
+              new H.ui.InfoBubble(item.position, {
+                content: item.address.label,
+              })
+            );
           });
         },
         alert
