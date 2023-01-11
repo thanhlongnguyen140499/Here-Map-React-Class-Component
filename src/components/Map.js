@@ -18,6 +18,10 @@ export default class Map extends React.Component {
         apikey: "RpBrr7I5gAEGBZaUpbMRVW8STCXVc5UgTKQgNvRSpSU",
       });
       const layers = platform.createDefaultLayers();
+
+      // Get an instance of the geocoding service:
+      let service = platform.getSearchService();
+
       const map = new H.Map(this.ref.current, layers.vector.normal.map, {
         pixelRatio: window.devicePixelRatio,
         center: { lat: 16, lng: 108 },
@@ -32,6 +36,20 @@ export default class Map extends React.Component {
       map.addEventListener("mapviewchange", this.handleMapViewChange);
       // add the interactive behaviour to the map
       new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+
+      // Displaying geocoding results on a map
+      service.geocode(
+        {
+          q: "Ho Nghinh, Son Tra, Da Nanng, Vietnam",
+        },
+        (result) => {
+          // Add a marker for each location found
+          result.items.forEach((item) => {
+            map.addObject(new H.map.Marker(item.position));
+          });
+        },
+        alert
+      );
     }
   }
 
@@ -51,7 +69,7 @@ export default class Map extends React.Component {
 
   componentWillUnmount() {
     if (this.map) {
-      this.map.removeEventListener('mapviewchange', this.handleMapViewChange);
+      this.map.removeEventListener("mapviewchange", this.handleMapViewChange);
     }
   }
 
