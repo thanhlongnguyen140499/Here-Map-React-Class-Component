@@ -38,9 +38,9 @@ export default class Map extends React.Component {
         routingMode: "fast",
         transportMode: "car",
         // The start point of the route:
-        origin: "16.8581352,106.8588935",
+        origin: "16.055796,108.234200",
         // The end point of the route:
-        destination: "16.047079,108.206230",
+        destination: "16.054038,108.223457",
         // Include the route shape in the response
         return: "polyline",
       };
@@ -89,6 +89,8 @@ export default class Map extends React.Component {
   onResult = (result) => {
     // ensure that at least one route was found
     if (result.routes.length) {
+      console.log("result: ", result);
+
       result.routes[0].sections.forEach((section) => {
         // Create a linestring to use as a point source for the route line
         let linestring = H.geo.LineString.fromFlexiblePolyline(
